@@ -84,7 +84,7 @@
                 <img
                   v-bind="attrs"
                   v-on="on"
-                  @click="$refs.confirmDeleteCiruclar.open(), (deleteCircular = item.circularID)"
+                  @click="$refs.confirmDeleteCircular.open(), (deleteCircularID = item.circularID)"
                   src="../../assets/images/icon-delete.svg"
                   alt=""
                   srcset=""
@@ -433,6 +433,7 @@ export default {
       }
       await circular.createCircular(data).then(() => {
         this.addCircular = false
+        this.init()
       })
     },
     async edit() {
@@ -444,6 +445,7 @@ export default {
       }
       await circular.updateCircular(updateData).then(() => {
         this.editCircular = false
+        this.init()
       })
     },
     async callDataWithNoLoading() {

@@ -1,5 +1,7 @@
 const { Topic } = require("../models");
 const { Student } = require("../models");
+const { Circular } = require("../models");
+const { Instructor } = require("../models");
 const { Op } = require("sequelize");
 
 const create = async (req, res) => {
@@ -8,7 +10,7 @@ const create = async (req, res) => {
       topicName,
       duration,
       leaderID,
-      leaderName,
+      instructorID,
       members,
       progress,
       allocationCircularID,
@@ -22,7 +24,7 @@ const create = async (req, res) => {
       topicName,
       duration,
       leaderID,
-      leaderName,
+      instructorID,
       members,
       progress,
       allocationCircularID,
@@ -46,7 +48,7 @@ const put = async (req, res) => {
       topicName,
       duration,
       leaderID,
-      leaderName,
+      instructorID,
       members,
       progress,
       allocationCircularID,
@@ -66,7 +68,7 @@ const put = async (req, res) => {
       topicName,
       duration,
       leaderID,
-      leaderName,
+      instructorID,
       members,
       progress,
       allocationCircularID,
@@ -114,7 +116,14 @@ const deleteTopic =
 
 const getAll = async (req, res) => {
   try {
-    const Topics = await Topic.findAll();
+    const Topics = await Topic.findAll({
+      include: [
+        { model: Circular, as: "allocationCircular" },
+        { model: Circular, as: "councilCircular" },
+        { model: Student, as: "Leader" },
+        { model: Instructor, as: "Instructor" },
+      ],
+    });
     res.json(Topics);
   } catch (error) {
     console.error(error);
@@ -167,7 +176,15 @@ const getTopicByID =
         };
       }
 
-      const topic = await Topic.findAll({ where: whereClause });
+      const topic = await Topic.findAll({
+        where: whereClause,
+        include: [
+          { model: Circular, as: "allocationCircular" },
+          { model: Circular, as: "councilCircular" },
+          { model: Student, as: "Leader" },
+          { model: Instructor, as: "Instructor" },
+        ],
+      });
       res.json(topic);
     } catch (error) {
       console.error(error);

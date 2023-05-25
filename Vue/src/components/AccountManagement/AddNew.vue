@@ -296,15 +296,15 @@ export default {
       this.accountTypes = [
         {
           accountTypeID: 1,
-          accountTypeName: 'admin',
+          accountTypeName: 'Admin',
         },
         {
           accountTypeID: 2,
-          accountTypeName: 'teacher',
+          accountTypeName: 'Teacher',
         },
         {
           accountTypeID: 3,
-          accountTypeName: 'student',
+          accountTypeName: 'Student',
         },
       ]
     },
@@ -313,20 +313,6 @@ export default {
       // this.createTarget()
     },
     async createUser() {
-      this.accountTypes = [
-        {
-          accountTypeID: 1,
-          accountTypeName: 'admin',
-        },
-        {
-          accountTypeID: 2,
-          accountTypeName: 'teacher',
-        },
-        {
-          accountTypeID: 3,
-          accountTypeName: 'student',
-        },
-      ]
       const imagefile = document.querySelector('#file-input')
       // console.log(imagefile.files[0])
       const formData = new FormData()
@@ -334,21 +320,53 @@ export default {
       formData.append('password', this.newPassword)
       formData.append('roleid', this.accountType)
       formData.append('image', imagefile.files[0])
-      // console.log(formData)
+      // console.log(formData)\
       await loginadmin.register(formData).then(res => {
-        this.dialog = true
-        if (res.status === 201) this.userID = res.newUser.userID
-        if (res.status === 409) this.dialog = false
+        this.createTarget(res.newUser.userID)
+        console.log(res)
       })
     },
-    async createTarget() {
+    createTarget(userID) {
+      if (this.accountType === 1) this.createAdmin(userID)
+      else if (this.accountType === 2) this.createInstructor(userID)
+      else this.createStudent(userID)
+    },
+    async createStudent(userID) {
       const bodyCreate = {
-        admin_userID: this.userID,
-        instructor_userID: this.userID,
-        stu_userID: this.userID,
-        instructorName: this.instructorName,
+        stu_userID: userID,
         studentName: this.studentName,
-        adminName: this.adminName,
+        dob: this.dob,
+        gender: this.gender,
+        address: this.address,
+        phoneNum: this.phoneNum,
+        major: this.major,
+        academicDegree: this.academicDegree,
+        classCode: this.classCode,
+      }
+      await my_profile.createDetailStudentInfo(bodyCreate).then(res => {
+        this.message = res.message
+        if (res.message == 'Student created') {
+          this.dialog = true
+          this.checkSuccess = true
+          setTimeout(() => {
+            this.checkSuccess = false
+            this.$router.push({ name: 'my-profile' })
+          }, 2000)
+          this.dialog = false
+        } else {
+          this.dialog = true
+          this.checkFailed = true
+          setTimeout(() => {
+            this.checkFailed = false
+          }, 2000)
+          this.dialog = false
+        }
+      })
+    },
+    async createInstructor(userID) {
+      const bodyCreate = {
+        instructor_userID: userID,
+        instructorName: this.instructorName,
         dob: this.dob,
         gender: this.gender,
         address: this.address,
@@ -356,69 +374,55 @@ export default {
         major: this.major,
         academicDegree: this.academicDegree,
         moralEducation: this.moralEducation,
-        classCode: this.classCode,
       }
-      if (this.accountType === 1) {
-        await my_profile.createDetailAdminInfo(bodyCreate).then(res => {
-          this.message = res.message
-          if (res.message == 'Admin created') {
-            this.dialog = true
-            this.checkSuccess = true
-            setTimeout(() => {
-              this.checkSuccess = false
-              this.$router.push({ name: 'my-profile' })
-            }, 2000)
-            this.dialog = false
-          } else {
-            this.dialog = true
-            this.checkFailed = true
-            setTimeout(() => {
-              this.checkFailed = false
-            }, 2000)
-            this.dialog = false
-          }
-        })
-      } else if (this.accountType === 2) {
-        await my_profile.createDetailInstructorInfo(bodyCreate).then(res => {
-          this.message = res.message
-          if (res.message == 'Instructor created') {
-            this.dialog = true
-            this.checkSuccess = true
-            setTimeout(() => {
-              this.checkSuccess = false
-              this.$router.push({ name: 'my-profile' })
-            }, 2000)
-            this.dialog = false
-          } else {
-            this.dialog = true
-            this.checkFailed = true
-            setTimeout(() => {
-              this.checkFailed = false
-            }, 2000)
-            this.dialog = false
-          }
-        })
-      } else {
-        await my_profile.createDetailStudentInfo(bodyCreate).then(res => {
-          this.message = res.message
-          if (res.message == 'Student created') {
-            this.dialog = true
-            this.checkSuccess = true
-            setTimeout(() => {
-              this.checkSuccess = false
-              this.$router.push({ name: 'my-profile' })
-            }, 2000)
-            this.dialog = false
-          } else {
-            this.dialog = true
-            this.checkFailed = true
-            setTimeout(() => {
-              this.checkFailed = false
-            }, 2000)
-            this.dialog = false
-          }
-        })
+      await my_profile.createDetailInstructorInfo(bodyCreate).then(res => {
+        this.message = res.message
+        if (res.message == 'Instructor created') {
+          this.dialog = true
+          this.checkSuccess = true
+          setTimeout(() => {
+            this.checkSuccess = false
+            this.$router.push({ name: 'my-profile' })
+          }, 2000)
+          this.dialog = false
+        } else {
+          this.dialog = true
+          this.checkFailed = true
+          setTimeout(() => {
+            this.checkFailed = false
+          }, 2000)
+          this.dialog = false
+        }
+      })
+    },
+    async createAdmin(userID) {
+      const bodyCreate = {
+        admin_userID: userID,
+        adminName: this.adminName,
+        dob: this.dob,
+        gender: this.gender,
+        address: this.address,
+        phoneNum: this.phoneNum,
       }
+      await my_profile.createDetailAdminInfo(bodyCreate).then(res => {
+        this.message = res.message
+        if (res.message == 'Admin created') {
+          this.dialog = true
+          this.checkSuccess = true
+          setTimeout(() => {
+            this.checkSuccess = false
+            this.$router.push({ name: 'my-profile' })
+          }, 2000)
+          this.dialog = false
+        } else {
+          this.dialog = true
+          this.checkFailed = true
+          setTimeout(() => {
+            this.checkFailed = false
+          }, 2000)
+          this.dialog = false
+        }
+      })
     },
 
     async onFileChange(e) {

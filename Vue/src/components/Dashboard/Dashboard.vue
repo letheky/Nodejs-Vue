@@ -10,7 +10,7 @@
     <v-row>
       <v-col cols="6" class="d-flex justify-end">
         <img
-          src="@/assets/avatar.jpg"
+          src="@/assets/uploads/avatar.jpg"
           class="pa-4 pb-0"
           :style="{ width: '500px', height: '600px', borderRadius: '5%' }"
         />

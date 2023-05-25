@@ -10,7 +10,10 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Research.belongsTo(models.Instructor, { foreignKey: 'leaderID', as: 'Leader' });
+      Research.belongsTo(models.Circular, { foreignKey: 'auditCircularID', as: 'auditCircular' });
+      Research.belongsTo(models.Circular, { foreignKey: 'allocationCircularID',as: 'allocationCircular' });
+      Research.belongsTo(models.Circular, { foreignKey: 'councilCircularID', as: 'councilCircular', });
     }
   };
   Research.init({
@@ -26,7 +29,6 @@ module.exports = (sequelize, DataTypes) => {
     usage: DataTypes.STRING,
     duration: DataTypes.STRING,
     leaderID: DataTypes.INTEGER,
-    leaderName: DataTypes.STRING,
     members: DataTypes.TEXT,
     progress: DataTypes.STRING,
     evaluationDate: DataTypes.DATE,

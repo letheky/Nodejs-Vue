@@ -17,11 +17,14 @@ module.exports = {
       leaderID: {
         type: Sequelize.INTEGER,
       },
-      leaderName: {
-        type: Sequelize.STRING,
+      instructorID: {
+        type: Sequelize.INTEGER,
       },
       members: {
         type: Sequelize.TEXT,
+      },
+      progress: {
+        type: Sequelize.STRING,
       },
       evaluationDate: {
         type: Sequelize.DATE,

@@ -5,7 +5,7 @@ import {
     PAPER_DELETE,
     PAPER_GETALL,
     PAPER_GET_BY_ID,
-    PAPER_GET_BY_USERID,
+    // PAPER_GET_BY_USERID,
   } from '@/api/constant.js'
   import { handleResponse } from '@/api/handle-response'
   import { requestOptions } from '@/api/request-options'
@@ -38,13 +38,13 @@ import {
         return data
       })
   }
-  function getPaperByUserID(data) {
-    return fetch(ROOT + PAPER_GET_BY_USERID + '?paper_userID=' + data, requestOptions.get())
-      .then(handleResponse)
-      .then(data => {
-        return data
-      })
-  }
+  // function getPaperByUserID(data) {
+  //   return fetch(ROOT + PAPER_GET_BY_USERID + '?paper_userID=' + data, requestOptions.get())
+  //     .then(handleResponse)
+  //     .then(data => {
+  //       return data
+  //     })
+  // }
   function getAllPaper() {
     return fetch(ROOT + PAPER_GETALL , requestOptions.get())
       .then(handleResponse)
@@ -58,7 +58,7 @@ import {
       updatePaper,
       deletePaper,
       getPaperByID,
-      getPaperByUserID,
+      // getPaperByUserID,
       getAllPaper,
   }
   

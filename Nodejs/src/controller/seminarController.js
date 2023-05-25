@@ -35,7 +35,7 @@ const put = async (req, res) => {
       return res.status(404).send("Seminar not found");
     }
 
-    await Seminar.update({
+    await seminar.update({
       seminarName,
       seminarPlan,
       peopleAssignNum,

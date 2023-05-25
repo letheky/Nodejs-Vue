@@ -14,7 +14,6 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Seminar.init({
-    
     seminarID: {
       allowNull: false,
       autoIncrement: true,

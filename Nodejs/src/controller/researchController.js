@@ -1,5 +1,6 @@
 const { Research } = require("../models");
 const { Instructor } = require("../models");
+const { Circular } = require("../models");
 const { Op } = require("sequelize");
 
 const create = async (req, res) => {
@@ -11,7 +12,6 @@ const create = async (req, res) => {
       usage,
       duration,
       leaderID,
-      leaderName,
       members,
       allocationCircularID,
       councilCircularID,
@@ -30,7 +30,6 @@ const create = async (req, res) => {
       usage,
       duration,
       leaderID,
-      leaderName,
       members,
       allocationCircularID,
       councilCircularID,
@@ -59,7 +58,6 @@ const put = async (req, res) => {
       usage,
       duration,
       leaderID,
-      leaderName,
       members,
       allocationCircularID,
       councilCircularID,
@@ -84,7 +82,6 @@ const put = async (req, res) => {
       usage,
       duration,
       leaderID,
-      leaderName,
       members,
       allocationCircularID,
       councilCircularID,
@@ -134,7 +131,14 @@ const deleteResearch =
 
 const getAll = async (req, res) => {
   try {
-    const Researchs = await Research.findAll();
+    const Researchs = await Research.findAll({
+      include: [
+        { model: Circular, as: "allocationCircular" },
+        { model: Circular, as: "councilCircular" },
+        { model: Circular, as: "auditCircular" },
+        { model: Instructor, as: "Leader" },
+      ],
+    });
     res.json(Researchs);
   } catch (error) {
     console.error(error);
@@ -149,7 +153,7 @@ const getInstructorInResearch = async (req, res) => {
     // Extract the member and leader student IDs from all researches
     const instructorNames = [];
     researches.forEach((research) => {
-      const memberInstructorNames = research.members.split(',');
+      const memberInstructorNames = research.members.split(",");
       const leaderInstructorName = research.leaderName;
       instructorNames.push(...memberInstructorNames, leaderInstructorName);
     });
@@ -157,8 +161,8 @@ const getInstructorInResearch = async (req, res) => {
     // Find the students by their IDs in the database
     const instructors = await Instructor.findAll({
       where: {
-        instructorName: instructorNames
-      }
+        instructorName: instructorNames,
+      },
     });
 
     res.status(200).json(instructors);
@@ -187,7 +191,15 @@ const getResearchByID =
         };
       }
 
-      const research = await Research.findAll({ where: whereClause });
+      const research = await Research.findAll({
+        where: whereClause,
+        include: [
+          { model: Circular, as: "allocationCircular" },
+          { model: Circular, as: "councilCircular" },
+          { model: Circular, as: "auditCircular" },
+          { model: Instructor, as: "Leader" },
+        ],
+      });
       res.json(research);
     } catch (error) {
       console.error(error);
@@ -201,5 +213,5 @@ module.exports = {
   deleteResearch,
   getAll,
   getResearchByID,
-  getInstructorInResearch
+  getInstructorInResearch,
 };

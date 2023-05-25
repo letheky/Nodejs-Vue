@@ -10,7 +10,10 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      
+      Topic.belongsTo(models.Student, { foreignKey: 'leaderID', as: 'Leader' });
+      Topic.belongsTo(models.Instructor, { foreignKey: 'instructorID', as: "Instructor" });
+      Topic.belongsTo(models.Circular, { foreignKey: 'allocationCircularID',as: 'allocationCircular' });
+      Topic.belongsTo(models.Circular, { foreignKey: 'councilCircularID', as: 'councilCircular', });
     }
   };
   Topic.init({
@@ -24,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     topicName: DataTypes.STRING,
     duration: DataTypes.STRING,
     leaderID: DataTypes.INTEGER,
-    leaderName: DataTypes.STRING,
+    instructorID: DataTypes.STRING,
     members: DataTypes.TEXT,
     progress: DataTypes.STRING,
     evaluationDate: DataTypes.DATE,

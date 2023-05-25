@@ -1,19 +1,11 @@
 <template>
   <div class="absent" :style="{ maxHeight: '100vh' }">
     <div class="d-flex justify-space-between align-center mb-2">
-      <h2>Nghiên cứu khoa học sinh viên</h2>
+      <h2>Hội thảo</h2>
       <div v-if="roleid === 1">
-        <v-btn
-          @click="
-            $router.push({
-              name: 'topic-add-new',
-            })
-          "
-          color="#E3F2FD"
-          :style="{ color: '#246AFF' }"
-        >
+        <v-btn @click="addCircular = true" color="#E3F2FD" :style="{ color: '#246AFF' }">
           <img src="../../assets/images/icon-add-library.svg" alt="" srcset="" class="mr-1" />Thêm
-          đề tài</v-btn
+          hội thảo</v-btn
         >
       </div>
     </div>
@@ -55,50 +47,211 @@
           </tr>
         </template>
         <template v-slot:[`item.no`]="{ index }">
-          <a >{{ index + 1 }}</a>
+          <a>{{ index + 1 }}</a>
         </template>
-        <template v-slot:[`item.referenceName`]="{ item }">
-          <a class="link" :href="item.referenceURL" target="_blank">{{ item.referenceName }}</a>
+        <template v-slot:[`item.seminarPlan`]="{ item }">
+          <p class="collapse-text">{{ item.seminarPlan }}</p>
         </template>
         <template v-slot:[`item.action`]="{ item }">
           <div class="d-flex align-center">
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <img
+                  v-bind="attrs"
+                  v-on="on"
+                  class="ml-2 mr-2 btn-pointer"
+                  @click=";(selectedCircular = item), (dialogCircular = true)"
+                  src="../../assets/images/icon-eye.svg"
+                  alt=""
+                  srcset=""
+                />
+              </template>
+              <span>Xem hội thảo</span>
+            </v-tooltip>
             <v-tooltip v-if="roleid === 1 || roleid === 2" top>
               <template v-slot:activator="{ on, attrs }">
                 <img
                   v-bind="attrs"
                   v-on="on"
-                  @click="editReference(item.topicID)"
+                  @click="editReference(item)"
                   src="../../assets/images/icon-edit-pen.svg"
                   alt=""
                   srcset=""
                   class="btn-pointer"
                 />
               </template>
-              <span>Edit</span>
+              <span>Sửa</span>
             </v-tooltip>
             <v-tooltip v-if="roleid === 1" top>
               <template v-slot:activator="{ on, attrs }">
                 <img
                   v-bind="attrs"
                   v-on="on"
-                  @click="$refs.confirmDeleteTopic.open(), (deleteTopicID = item.topicID)"
+                  @click="$refs.confirmDeleteCircular.open(), (deleteCircularID = item.seminarID)"
                   src="../../assets/images/icon-delete.svg"
                   alt=""
                   srcset=""
                   class="btn-pointer"
                 />
               </template>
-              <span>Delete</span>
+              <span>Xóa</span>
             </v-tooltip>
           </div>
         </template>
       </v-data-table>
     </template>
+    <div v-if="dialogCircular" :class="'dig-video'">
+      <v-dialog content-class="elevation-0" width="700px" v-model="dialogCircular">
+        <div :style="{ width: 'fit-content', marginLeft: 'auto' }">
+          <img
+            @click="dialogCircular = false"
+            :style="{ width: '30px', height: '30px', cursor: 'pointer ' }"
+            src="../../assets/images/icon-close2.svg"
+            alt=""
+          />
+        </div>
+        <v-card class="pt-5 pl-5 pr-7 pb-4" width="800px">
+          <div>
+            <h3>Kế hoạch hội thảo</h3>
+            <p>{{selectedCircular.seminarPlan}}</p>
+          </div>
+        </v-card>
+      </v-dialog>
+    </div>
+    <div v-if="editCircular" :class="'dig-video'">
+      <v-dialog content-class="elevation-0" width="700px" v-model="editCircular">
+        <div :style="{ width: 'fit-content', marginLeft: 'auto' }">
+          <img
+            @click="editCircular = false"
+            :style="{ width: '30px', height: '30px', cursor: 'pointer ' }"
+            src="../../assets/images/icon-close2.svg"
+            alt=""
+          />
+        </div>
+        <v-card class="pt-5 pl-5 pr-7 pb-4" width="800px">
+          <v-col cols="12">
+            <v-text-field
+              v-model="selectedCircular.seminarName"
+              outlined
+              :loading="isLoading"
+              :disabled="isLoading"
+              label="Tên hội thảo"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12">
+            <v-text-field
+              v-model="selectedCircular.seminarPlan"
+              outlined
+              :loading="isLoading"
+              :disabled="isLoading"
+              label="Kế hoạch hội thảo"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="6">
+            <v-text-field
+              v-model="selectedCircular.peopleAssignNum"
+              outlined
+              :loading="isLoading"
+              :disabled="isLoading"
+              label="Số người tham gia"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="6">
+            <v-text-field
+              v-model="selectedCircular.paperAssign"
+              outlined
+              :loading="isLoading"
+              :disabled="isLoading"
+              label="Số bài báo tham gia"
+            ></v-text-field>
+          </v-col>
+          <v-row>
+            <v-col cols="5"></v-col>
+            <v-col cols="2">
+              <v-btn
+                small
+                elevation="0"
+                color="secondary"
+                height="36"
+                class="pl-16 pr-16"
+                @click="edit()"
+                >Lưu chỉnh sửa</v-btn
+              >
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-dialog>
+    </div>
+    <div v-if="addCircular" :class="'dig-video'">
+      <v-dialog content-class="elevation-0" width="700px" v-model="addCircular">
+        <div :style="{ width: 'fit-content', marginLeft: 'auto' }">
+          <img
+            @click="addCircular = false"
+            :style="{ width: '30px', height: '30px', cursor: 'pointer ' }"
+            src="../../assets/images/icon-close2.svg"
+            alt=""
+          />
+        </div>
+        <v-card class="pt-5 pl-5 pr-7 pb-4" width="800px">
+          <v-col cols="12">
+            <v-text-field
+              v-model="seminarName"
+              outlined
+              :loading="isLoading"
+              :disabled="isLoading"
+              label="Tên hội thảo"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12">
+            <v-text-field
+              v-model="seminarPlan"
+              outlined
+              :loading="isLoading"
+              :disabled="isLoading"
+              label="Kế hoạch hội thảo"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="6">
+            <v-text-field
+              v-model="peopleAssignNum"
+              outlined
+              :loading="isLoading"
+              :disabled="isLoading"
+              label="Số người tham gia"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="6">
+            <v-text-field
+              v-model="paperAssign"
+              outlined
+              :loading="isLoading"
+              :disabled="isLoading"
+              label="Số bài báo tham gia"
+            ></v-text-field>
+          </v-col>
+
+          <v-row>
+            <v-col cols="9"></v-col>
+            <v-col cols="2">
+              <v-btn
+                small
+                elevation="0"
+                color="secondary"
+                height="36"
+                class="pl-16 pr-16"
+                @click="create()"
+                >Tạo mới</v-btn
+              >
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-dialog>
+    </div>
     <popup-confirm
-      @confirm="confirmDeleteTopic"
+      @confirm="confirmDeleteCircular"
       :maxWidth="550"
       confirmText="Yes, delete it!"
-      ref="confirmDeleteTopic"
+      ref="confirmDeleteCircular"
     >
       <v-card-title :class="'pt-0'" slot="icon">
         <div :style="{ margin: '0 auto' }">
@@ -109,7 +262,7 @@
       </v-card-title>
       <v-card-title :class="'pt-0'" slot="content">
         <p :style="{ width: '100%' }" class="text-center">
-          Bạn có muốn xóa đề tài này không? <br />
+          Bạn có muốn xóa hội thảo này không? <br />
           Dữ liệu không thể khôi phục.
         </p>
       </v-card-title>
@@ -123,16 +276,32 @@ import PopupConfirm from '@/components/Utils/PopupConfirm.vue'
 // import PopupReference from '@/components/Libraries/PopupReference.vue'
 
 import dayjs from 'dayjs'
-import { topic } from '@/api/topic'
+import { seminar } from '@/api/seminar'
 
 export default {
   components: { 'popup-confirm': PopupConfirm, Autocomplete: Autocomplete },
   data() {
     return {
-      listTopic: [],
+      listCircular: [],
       dayjs: dayjs,
+      selectedCircular: null,
       roleid: JSON.parse(localStorage.getItem('currentUser')).user.roleid,
-      referenceID: 0,
+      circularID: 0,
+      seminarName: '',
+      seminarPlan: '',
+      peopleAssignNum: '',
+      paperAssign: '',
+      circularName: '',
+      circularImage: '',
+      circularType: '',
+      circularTypeList: [
+        'Quyết định giao',
+        'Quyết định kiểm duyệt',
+        'Quyết định thành lập hội đồng',
+      ],
+      editCircular: false,
+      dialogCircular: false,
+      addCircular: false,
       headers: [
         {
           text: 'STT',
@@ -141,64 +310,40 @@ export default {
           width: '40px',
         },
         {
-          text: 'Tên đề tài',
-          value: 'topicName',
+          text: 'Tên hội thảo',
+          value: 'seminarName',
           sortable: false,
-          width: '150px',
+          width: '20%',
         },
         {
-          text: 'Thời gian thực hiện',
-          value: 'duration',
+          text: 'Kế hoạch hội thảo',
+          value: 'seminarPlan',
+          sortable: false,
+          width: '40%',
+        },
+        {
+          text: 'Số người tham gia',
+          value: 'peopleAssignNum',
+          sortable: false,
+          width: '120px',
+        },
+        {
+          text: 'Số bài báo tham gia',
+          value: 'paperAssign',
+          sortable: false,
+          width: '130px',
+        },
+        {
+          text: 'Ngày tạo',
+          value: 'createdAt',
           sortable: false,
           width: '100px',
         },
         {
-          text: 'Tên chủ nhiệm',
-          value: 'leaderName',
+          text: 'Ngày cập nhật',
+          value: 'updatedAt',
           sortable: false,
-          width: '10%',
-        },
-        {
-          text: 'Tiến độ',
-          value: 'progress',
-          sortable: false,
-          width: '10%',
-        },
-        {
-          text: 'Thành viên',
-          value: 'members',
-          sortable: false,
-          width: '15%',
-        },
-        {
-          text: 'Ngày đánh giá',
-          value: 'evaluationDate',
-          sortable: false,
-          width: '10%',
-        },
-        {
-          text: 'Kết quả đánh giá',
-          value: 'evaluationResult',
-          sortable: false,
-          width: '10%',
-        },
-        {
-          text: 'Quyết định giao',
-          value: 'allocationCircularID',
-          sortable: false,
-          width: '10%',
-        },
-        {
-          text: 'Quyết định thành lập hội đồng',
-          value: 'councilCircularID',
-          sortable: false,
-          width: '10%',
-        },
-        {
-          text: 'Thành viên hội đồng',
-          value: 'councilMembers',
-          sortable: false,
-          width: '15%',
+          width: '100px',
         },
         {
           text: 'Action',
@@ -207,25 +352,21 @@ export default {
           width: '5%',
         },
       ],
-      deleteTopicID: 0,
+      deleteCircularID: 0,
       filters: {
-        topicName: [],
-        duration: [],
-        leaderName: [],
-        progress: [],
-        members: [],
-        evaluationDate: [],
-        evaluationResult: [],
-        allocationCircularID: [],
-        councilCircularID: [],
-        councilMembers: [],
+        seminarName: [],
+        seminarPlan: [],
+        peopleAssignNum: [],
+        paperAssign: [],
+        createdAt: [],
+        updatedAt: [],
       },
     }
   },
 
   computed: {
     filtered() {
-      return this.listTopic?.filter(d => {
+      return this.listCircular.filter(d => {
         return Object.keys(this.filters).every(f => {
           return this.filters[f].length < 1 || this.filters[f].includes(d[f])
         })
@@ -233,10 +374,9 @@ export default {
     },
   },
   created() {
-    if (localStorage.getItem('topic')) {
-      this.filters = JSON.parse(localStorage.getItem('topicFilter'))
+    if (localStorage.getItem('seminar')) {
+      this.filters = JSON.parse(localStorage.getItem('seminarFilter'))
     }
-
     this.init()
     console.log('Start fetching...')
   },
@@ -244,19 +384,14 @@ export default {
   watch: {},
 
   methods: {
-    editReference(id) {
-      this.$router.push({
-        name: 'topic-add-new',
-        query: {
-          topicID: id,
-        },
-      })
+    editReference(record) {
+      ;(this.editCircular = true), (this.selectedCircular = record)
     },
-    confirmDeleteTopic() {
-      this.deleteTopic()
+    confirmDeleteCircular() {
+      this.deleteCircular()
     },
-    async deleteTopic() {
-      await topic.deleteTopic(this.deleteTopicID).then(() => {
+    async deleteCircular() {
+      await seminar.deleteSeminar(this.deleteCircularID).then(() => {
         this.callDataWithNoLoading()
       })
     },
@@ -265,13 +400,13 @@ export default {
         ...this.filters,
         [objectFilterChange.name]: objectFilterChange.filter,
       }
-      localStorage.setItem('topicFilter', JSON.stringify(this.filters))
+      localStorage.setItem('seminarFilter', JSON.stringify(this.filters))
     },
     groupColumnValueList(val) {
       //   if (val === 'referenceTagIDs') {
       //     return [
       //       ...new Set(
-      //         this.listTopic
+      //         this.listCircular
       //           .reduce((a, c) => [...a, c[val]], [])
       //           .map(c => (c.includes(',') ? c.split(',') : c))
       //           .flat()
@@ -279,48 +414,75 @@ export default {
       //       ),
       //     ]
       //   }
-      return this.listTopic.map(d => d[val]).filter(y => y)
+      return this.listCircular.map(d => d[val]).filter(y => y)
     },
-
+    urlChange(url) {
+      let url2 = url
+      if (url2.indexOf('/drive.google.com/file') !== -1) {
+        const listLinkArr = url2.split('/')
+        listLinkArr.pop()
+        url2 = listLinkArr.join('/') + '/preview'
+      }
+      return url2
+    },
     async init() {
       this.loading = true
       this.callDataWithLoading()
     },
 
     async callDataWithLoading() {
-      await topic.getAllTopic().then(res => {
+      await seminar.getAllSeminar().then(res => {
         if (res)
-          this.listTopic = res.map(topic => {
+          this.listCircular = res.map(seminar => {
             return {
-              ...topic,
-              //   topicTagIDs: topic.topicTagIDs
-              //     ? this.tagList
-              //         .filter(e => topic.topicTagIDs.includes(e.topicTagID))
-              //         .map(e => e.topicTagName)
-              //         .join(', ')
-              //     : '',
-              evaluationDate: topic.evaluationDate
-                ? dayjs(topic.evaluationDate).format('DD/MM/YYYY')
-                : '',
+              ...seminar,
+              createdAt: seminar.createdAt ? dayjs(seminar.createdAt).format('DD/MM/YYYY') : '',
+              updatedAt: seminar.updatedAt ? dayjs(seminar.updatedAt).format('DD/MM/YYYY') : '',
             }
           })
         this.loading = false
       })
     },
 
+    async create() {
+      const data = {
+        seminarName: this.seminarName,
+        seminarPlan: this.seminarPlan,
+        peopleAssignNum: this.peopleAssignNum,
+        paperAssign: this.paperAssign,
+      }
+      await seminar.createSeminar(data).then(() => {
+        this.addCircular = false
+        this.init()
+      })
+    },
+    async edit() {
+      const updateData = {
+        seminarID: this.selectedCircular.seminarID,
+        seminarName: this.selectedCircular.seminarName,
+        seminarPlan: this.selectedCircular.seminarPlan,
+        peopleAssignNum: this.selectedCircular.peopleAssignNum,
+        paperAssign: this.selectedCircular.paperAssign,
+      }
+      await seminar.updateSeminar(updateData).then(() => {
+        this.editCircular = false
+        this.init()
+      })
+    },
     async callDataWithNoLoading() {
-      await topic.getAllTopic().then(res => {
+      await seminar.getAllSeminar().then(res => {
         if (res)
-          this.listTopic = res.map(topic => {
+          this.listCircular = res.map(seminar => {
             return {
-              ...topic,
+              ...seminar,
               //   topicTagIDs: topic.topicTagIDs
               //     ? this.tagList
               //         .filter(e => topic.topicTagIDs.includes(e.topicTagID))
               //         .map(e => e.topicTagName)
               //         .join(', ')
               //     : '',
-              updatedAt: topic.updatedAt ? dayjs(topic.updatedAt).format('DD/MM/YYYY') : '',
+              createdAt: seminar.createdAt ? dayjs(seminar.createdAt).format('DD/MM/YYYY') : '',
+              updatedAt: seminar.updatedAt ? dayjs(seminar.updatedAt).format('DD/MM/YYYY') : '',
             }
           })
       })
@@ -382,6 +544,12 @@ export default {
   }
 }
 
+.colappse-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 .muted {
   color: gray;
   font-size: 80%;

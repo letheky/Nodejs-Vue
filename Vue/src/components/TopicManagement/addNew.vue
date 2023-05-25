@@ -45,13 +45,24 @@
                   </v-col>
                   <v-col cols="6">
                     <v-autocomplete
-                      v-model="studentID"
+                      v-model="leaderID"
                       :items="studentList"
                       item-text="studentName"
                       item-value="studentID"
                       outlined
                       multiple
                       label="Tên chủ nhiệm đề tài"
+                    ></v-autocomplete>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-autocomplete
+                      v-model="instructorID"
+                      :items="instructorList"
+                      item-text="instructorName"
+                      item-value="instructorID"
+                      outlined
+                      multiple
+                      label="Tên giảng viên hướng dẫn"
                     ></v-autocomplete>
                   </v-col>
                   <v-col cols="6">
@@ -80,8 +91,9 @@
                       :items="studentList"
                       outlined
                       clearable
+                      multiple
                       item-text="studentName"
-                      item-value="studentName"
+                      item-value="studentID"
                       label="Thành viên đề tài *"
                     ></v-combobox>
                   </v-col>
@@ -129,9 +141,10 @@
                       :items="instructorList"
                       outlined
                       clearable
+                      multiple
                       item-text="instructorName"
-                      item-value="instructorName"
-                      label="Thành viên đề tài *"
+                      item-value="instructorID"
+                      label="Thành viên hội đồng *"
                     ></v-combobox>
                   </v-col>
                 </v-row>
@@ -223,6 +236,9 @@ export default {
     }
   },
   created() {
+    this.getStudent()
+    this.getInstructor()
+    this.getCircular()
     if (this.topicID) this.getTopic()
   },
   mounted() {
@@ -230,13 +246,18 @@ export default {
   },
   methods: {
     async getStudent() {
-      this.studentList = student.getAllStudent()
+      this.studentList = await student.getAllStudent()
     },
     async getInstructor() {
-      this.councilList = instructor.getAllInstructor()
+      this.instructorList = await instructor.getAllInstructor()
     },
     async getCircular() {
-      this.circularList = circular.getAllCircular()
+      await circular.getAllCircular().then(res=>{
+        this.circularList = res
+        this.allocationList = res.filter(el=>el.circularType === "Quyết định giao")
+        this.auditList = res.filter(el=>el.circularType === "Quyết định kiểm duyệt")
+        this.councilList = res.filter(el=>el.circularType === "Quyết định thành lập hội đồng")
+      })
     },
     async getTopic() {
       await topic.getTopicByID(this.topicID).then(res => {

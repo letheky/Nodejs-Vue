@@ -52,12 +52,6 @@ export default {
           typeIcon: '',
           items: [
             {
-              iconImg: require('../../assets/images/icon-feetime.svg'),
-              title: 'Trang chủ',
-              path: '/my-calendar/overview',
-              active: true,
-            },
-            {
               iconImg: 'isax-profile-2user',
               title: 'Quản lý tài khoản',
               path: '/account-management/overview',

@@ -38,9 +38,6 @@ module.exports = {
       leaderID: {
         type: Sequelize.INTEGER,
       },
-      leaderName: {
-        type: Sequelize.STRING,
-      },
       members: {
         type: Sequelize.TEXT,
       },

@@ -205,6 +205,7 @@ export default {
     return {
       gender: false,
       dob: dayjs(new Date()).format('YYYY-MM-DD'),
+      hasInfo:false,
       address: '',
       adminID: 0,
       studentID: 0,
@@ -234,11 +235,13 @@ export default {
   methods: {
     async init() {
       this.isLoading = true
+
       if (this.currentUser.user.roleid === 1) {
         await my_profile
           .getDetailAdminInfo(this.userID)
           .then(res => {
             if (res.length>0) {
+              this.hasInfo = true
               this.adminID = res[0].adminID ? res[0].adminID : 0
               this.instructorID = res[0].instructorID ? res[0].instructorID : 0
               this.studentID = res[0].studentID ? res[0].studentID : 0
@@ -260,6 +263,7 @@ export default {
           .getDetailInstructorInfo(this.userID)
           .then(res => {
              if (res.length>0) {
+              this.hasInfo = true
               this.gender = res[0].gender
               this.adminID = res[0].adminID ? res[0].adminID : 0
               this.instructorID = res[0].instructorID ? res[0].instructorID : 0
@@ -278,11 +282,13 @@ export default {
           .finally(() => {
             this.isLoading = false
           })
-      } else {
+      } 
+      if(this.currentUser.user.roleid === 3) {
         await my_profile
           .getDetailStudentInfo(this.userID)
           .then(res => {
              if (res.length>0) {
+              this.hasInfo = true
               this.gender = res[0].gender
               this.adminID = res[0].adminID ? res[0].adminID : 0
               this.instructorID = res[0].instructorID ? res[0].instructorID : 0
@@ -340,7 +346,7 @@ export default {
         moralEducation: this.moralEducation,
         classCode: this.classCode,
       }
-      if (this.adminName || this.studentName || this.instructorName) {
+      if (!this.hasInfo) {
         if (this.roleID === 1) {
           my_profile.createDetailAdminInfo(bodyCreate).then(res => {
             this.message = res.message

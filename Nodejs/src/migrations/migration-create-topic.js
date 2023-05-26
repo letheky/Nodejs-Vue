@@ -21,7 +21,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       members: {
-        type: Sequelize.TEXT,
+        type: Sequelize.JSON,
       },
       progress: {
         type: Sequelize.STRING,
@@ -39,7 +39,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       councilMembers: {
-        type: Sequelize.TEXT,
+        type: Sequelize.JSON,
       },
       createdAt: {
         allowNull: false,

@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     usage: DataTypes.STRING,
     duration: DataTypes.STRING,
     leaderID: DataTypes.INTEGER,
-    members: DataTypes.TEXT,
+    members: DataTypes.JSON,
     progress: DataTypes.STRING,
     evaluationDate: DataTypes.DATE,
     evaluationResult: DataTypes.STRING,
@@ -37,7 +37,7 @@ module.exports = (sequelize, DataTypes) => {
     allocationCircularID: DataTypes.INTEGER,
     councilCircularID: DataTypes.INTEGER,
     auditCircularID: DataTypes.INTEGER,
-    councilMembers: DataTypes.TEXT
+    councilMembers: DataTypes.JSON
     
   }, {
     sequelize,

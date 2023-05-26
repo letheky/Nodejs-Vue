@@ -55,7 +55,7 @@
           </tr>
         </template>
         <template v-slot:[`item.no`]="{ index }">
-          <a >{{ index + 1 }}</a>
+          <a>{{ index + 1 }}</a>
         </template>
         <template v-slot:[`item.referenceName`]="{ item }">
           <a class="link" :href="item.referenceURL" target="_blank">{{ item.referenceName }}</a>
@@ -124,12 +124,18 @@ import PopupConfirm from '@/components/Utils/PopupConfirm.vue'
 
 import dayjs from 'dayjs'
 import { topic } from '@/api/topic'
+import { student } from '@/api/student'
+import { instructor } from '@/api/instructor'
+import { circular } from '@/api/circular'
 
 export default {
   components: { 'popup-confirm': PopupConfirm, Autocomplete: Autocomplete },
   data() {
     return {
       listTopic: [],
+      studentList: [],
+      instructorList: [],
+      circularList: [],
       dayjs: dayjs,
       roleid: JSON.parse(localStorage.getItem('currentUser')).user.roleid,
       referenceID: 0,
@@ -154,7 +160,13 @@ export default {
         },
         {
           text: 'Tên chủ nhiệm',
-          value: 'leaderName',
+          value: 'leaderID',
+          sortable: false,
+          width: '10%',
+        },
+        {
+          text: 'Tên giảng viên hướng dẫn',
+          value: 'instructorID',
           sortable: false,
           width: '10%',
         },
@@ -211,7 +223,8 @@ export default {
       filters: {
         topicName: [],
         duration: [],
-        leaderName: [],
+        leaderID: [],
+        instructorID: [],
         progress: [],
         members: [],
         evaluationDate: [],
@@ -227,16 +240,36 @@ export default {
     filtered() {
       return this.listTopic?.filter(d => {
         return Object.keys(this.filters).every(f => {
-          return this.filters[f].length < 1 || this.filters[f].includes(d[f])
+          return (
+            this.filters[f].length < 1 ||
+            (f === 'members'
+              ? this.filters[f].reduce((value, el) => {
+                  if (d.members.includes(el)) {
+                    value = true
+                  }
+                  return value
+                }, false)
+              : f === 'councilMembers'
+              ? this.filters[f].reduce((value, el) => {
+                  if (d.councilMembers.includes(el)) {
+                    value = true
+                  }
+                  return value
+                }, false)
+              : this.filters[f].includes(d[f]))
+          )
         })
       })
     },
   },
+
   created() {
     if (localStorage.getItem('topic')) {
       this.filters = JSON.parse(localStorage.getItem('topicFilter'))
     }
-
+    this.getStudent()
+    this.getInstructor()
+    this.getCircular()
     this.init()
     console.log('Start fetching...')
   },
@@ -251,6 +284,15 @@ export default {
           topicID: id,
         },
       })
+    },
+    async getStudent() {
+      this.studentList = await student.getAllStudent()
+    },
+    async getCircular() {
+      this.circularList = await circular.getAllCircular()
+    },
+    async getInstructor() {
+      this.instructorList = await instructor.getAllInstructor()
     },
     confirmDeleteTopic() {
       this.deleteTopic()
@@ -268,17 +310,17 @@ export default {
       localStorage.setItem('topicFilter', JSON.stringify(this.filters))
     },
     groupColumnValueList(val) {
-      //   if (val === 'referenceTagIDs') {
-      //     return [
-      //       ...new Set(
-      //         this.listTopic
-      //           .reduce((a, c) => [...a, c[val]], [])
-      //           .map(c => (c.includes(',') ? c.split(',') : c))
-      //           .flat()
-      //           .map(c => c.trim())
-      //       ),
-      //     ]
-      //   }
+      if (val === 'members' || val === 'councilMembers') {
+        return [
+          ...new Set(
+            this.listTopic
+              .reduce((a, c) => [...a, c[val]], [])
+              .map(c => (c.includes(',') ? c.split(',') : c))
+              .flat()
+              .map(c => c.trim())
+          ),
+        ]
+      }
       return this.listTopic.map(d => d[val]).filter(y => y)
     },
 
@@ -293,12 +335,23 @@ export default {
           this.listTopic = res.map(topic => {
             return {
               ...topic,
-              //   topicTagIDs: topic.topicTagIDs
-              //     ? this.tagList
-              //         .filter(e => topic.topicTagIDs.includes(e.topicTagID))
-              //         .map(e => e.topicTagName)
-              //         .join(', ')
-              //     : '',
+              members: topic.members
+                ? this.studentList
+                    .filter(e => topic.members.includes(e.studentID))
+                    .map(e => e.studentName)
+                    .join(', ')
+                : '',
+              councilMembers: topic.councilMembers
+                ? this.instructorList
+                    .filter(e => topic.councilMembers.includes(e.instructorID))
+                    .map(e => e.instructorName)
+                    .join(', ')
+                : '',
+              leaderID: topic.Leader.studentName,
+              instructorID: topic.Instructor.instructorName,
+              allocationCircularID: topic.allocationCircular.circularName,
+              councilCircularID: topic.councilCircular.circularName,
+              progress: topic.progress + ' %',
               evaluationDate: topic.evaluationDate
                 ? dayjs(topic.evaluationDate).format('DD/MM/YYYY')
                 : '',
@@ -314,13 +367,23 @@ export default {
           this.listTopic = res.map(topic => {
             return {
               ...topic,
-              //   topicTagIDs: topic.topicTagIDs
-              //     ? this.tagList
-              //         .filter(e => topic.topicTagIDs.includes(e.topicTagID))
-              //         .map(e => e.topicTagName)
-              //         .join(', ')
-              //     : '',
-              updatedAt: topic.updatedAt ? dayjs(topic.updatedAt).format('DD/MM/YYYY') : '',
+              members: topic.members
+                ? this.studentList
+                    .filter(e => topic.members.includes(e.studentID))
+                    .map(e => e.studentName)
+                    .join(', ')
+                : '',
+              councilMembers: topic.councilMembers
+                ? this.instructorList
+                    .filter(e => topic.councilMembers.includes(e.instructorID))
+                    .map(e => e.instructorName)
+                    .join(', ')
+                : '',
+              leaderID: topic.Leader.studentName,
+              progress: topic.progress + ' %',
+              evaluationDate: topic.evaluationDate
+                ? dayjs(topic.evaluationDate).format('DD/MM/YYYY')
+                : '',
             }
           })
       })

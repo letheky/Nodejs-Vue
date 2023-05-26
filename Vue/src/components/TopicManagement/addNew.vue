@@ -50,7 +50,6 @@
                       item-text="studentName"
                       item-value="studentID"
                       outlined
-                      multiple
                       label="Tên chủ nhiệm đề tài"
                     ></v-autocomplete>
                   </v-col>
@@ -61,11 +60,11 @@
                       item-text="instructorName"
                       item-value="instructorID"
                       outlined
-                      multiple
                       label="Tên giảng viên hướng dẫn"
                     ></v-autocomplete>
                   </v-col>
                   <v-col cols="6">
+                    <h3>Tiến độ đề tài</h3>
                     <v-slider
                       v-model="progress"
                       class="align-center"
@@ -86,7 +85,7 @@
                     </v-slider>
                   </v-col>
                   <v-col cols="6">
-                    <v-combobox
+                    <v-autocomplete
                       v-model="members"
                       :items="studentList"
                       outlined
@@ -95,14 +94,15 @@
                       item-text="studentName"
                       item-value="studentID"
                       label="Thành viên đề tài *"
-                    ></v-combobox>
+                    ></v-autocomplete>
                   </v-col>
                   <v-col cols="6">
-                    <date-picker
-                      class="pb-4"
-                      :model="evaluationDate"
-                      title="Ngày đánh giá"
-                    ></date-picker>
+                    <v-text-field
+                      type="date"
+                      label="Ngày đánh giá"
+                      v-model="evaluationDate"
+                      outlined
+                    />
                   </v-col>
                   <v-col cols="6">
                     <v-text-field
@@ -120,7 +120,6 @@
                       item-text="circularName"
                       item-value="circularID"
                       outlined
-                      multiple
                       label="Quyết định giao"
                     ></v-autocomplete>
                   </v-col>
@@ -131,12 +130,11 @@
                       item-text="circularName"
                       item-value="circularID"
                       outlined
-                      multiple
                       label="Quyết định thành lập hội đồng"
                     ></v-autocomplete>
                   </v-col>
                   <v-col cols="6" class="pt-2 pb-2">
-                    <v-combobox
+                    <v-autocomplete
                       v-model="councilMembers"
                       :items="instructorList"
                       outlined
@@ -145,7 +143,7 @@
                       item-text="instructorName"
                       item-value="instructorID"
                       label="Thành viên hội đồng *"
-                    ></v-combobox>
+                    ></v-autocomplete>
                   </v-col>
                 </v-row>
               </div>
@@ -203,11 +201,11 @@ import { instructor } from '@/api/instructor'
 // import { VueEditor } from 'vue2-editor'
 import dayjs from 'dayjs'
 // const querystring = require("querystring");
-import DatePicker from '@/components/Utils/DatePicker.vue'
+// import DatePicker from '@/components/Utils/DatePicker.vue'
 export default {
   components: {
     //   'vue-editor': VueEditor,
-    'date-picker': DatePicker,
+    // 'date-picker': DatePicker,
   },
 
   data() {
@@ -220,7 +218,9 @@ export default {
       topicName: '',
       dialog: false,
       duration: '',
+      leaderID: null,
       studentID: null,
+      instructorID: null,
       allocationCircularID: null,
       councilCircularID: null,
       studentList: [],
@@ -252,11 +252,11 @@ export default {
       this.instructorList = await instructor.getAllInstructor()
     },
     async getCircular() {
-      await circular.getAllCircular().then(res=>{
+      await circular.getAllCircular().then(res => {
         this.circularList = res
-        this.allocationList = res.filter(el=>el.circularType === "Quyết định giao")
-        this.auditList = res.filter(el=>el.circularType === "Quyết định kiểm duyệt")
-        this.councilList = res.filter(el=>el.circularType === "Quyết định thành lập hội đồng")
+        this.allocationList = res.filter(el => el.circularType === 'Quyết định giao')
+        this.auditList = res.filter(el => el.circularType === 'Quyết định kiểm duyệt')
+        this.councilList = res.filter(el => el.circularType === 'Quyết định thành lập hội đồng')
       })
     },
     async getTopic() {
@@ -265,10 +265,18 @@ export default {
         this.duration = res[0].duration
         this.evaluationResult = res[0].evaluationResult
         this.leaderID = res[0].leaderID
+        this.instructorID = res[0].instructorID
         this.leaderName = res[0].leaderName
         this.progress = res[0].progress
-        this.members = res[0].members
+        this.members = JSON.parse(res[0].members)
+          .split(',')
+          .map(el => el * 1)
+        this.councilMembers = JSON.parse(res[0].councilMembers)
+          .split(',')
+          .map(el => el * 1)
         this.evaluationDate = res[0].evaluationDate
+          ? dayjs(res[0].evaluationDate).format('YYYY-MM-DD')
+          : dayjs(new Date()).format('YYYY-MM-DD')
         this.allocationCircularID = res[0].allocationCircularID
         this.councilCircularID = res[0].councilCircularID
       })
@@ -280,12 +288,15 @@ export default {
           topicName: this.topicName,
           duration: this.duration,
           evaluationResult: this.evaluationResult,
-          councilMembers: this.councilMembers.length > 0 ? this.councilMembers.join(',') : '',
-          leaderID: this.studentID,
+          councilMembers: this.councilMembers.length > 1 ? this.councilMembers.join(',') : '',
+          leaderID: this.leaderID,
+          instructorID: this.instructorID,
           leaderName: this.studentName,
           progress: this.progress,
-          members: this.members.length > 0 ? this.members.join(',') : '',
-          evaluationDate: this.evaluationDate,
+          members: this.members.length > 1 ? this.members.join(',') : '',
+          evaluationDate: this.evaluationDate
+            ? this.evaluationDate
+            : dayjs(new Date()).format('YYYY-MM-DD'),
           allocationCircularID: this.allocationCircularID,
           councilCircularID: this.councilCircularID,
         }
@@ -294,12 +305,15 @@ export default {
           topicName: this.topicName,
           duration: this.duration,
           evaluationResult: this.evaluationResult,
-          councilMembers: this.councilMembers.length > 0 ? this.councilMembers.join(',') : '',
-          leaderID: this.studentID,
+          councilMembers: this.councilMembers.length > 1 ? this.councilMembers.join(',') : '',
+          leaderID: this.leaderID,
+          instructorID: this.instructorID,
           leaderName: this.studentName,
           progress: this.progress,
-          members: this.members.length > 0 ? this.members.join(',') : '',
-          evaluationDate: this.evaluationDate,
+          members: this.members.length > 1 ? this.members.join(',') : '',
+          evaluationDate: this.evaluationDate
+            ? dayjs(this.evaluationDate).format('YYYY-MM-DD')
+            : dayjs(new Date()).format('YYYY-MM-DD'),
           allocationCircularID: this.allocationCircularID,
           councilCircularID: this.councilCircularID,
         }

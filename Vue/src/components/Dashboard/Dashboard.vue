@@ -32,7 +32,7 @@
             <p class="my-3" :style="{fontSize:'16px'}">Mã sinh viên: 1901043</p>
             <p class="my-3" :style="{fontSize:'16px'}">Lớp: DH8-CNTT</p>
             <p class="my-3" :style="{fontSize:'16px'}">Khóa đào tạo: 2019-2023</p>
-            <p class="my-3" :style="{fontSize:'16px'}">Giảng viên hướng dẫn: ThS.Trần Hữu Anh</p>
+            <p class="my-3" :style="{fontSize:'16px'}">Giảng viên hướng dẫn: TS.Trần Hữu Anh</p>
           </v-card-text>
         </v-card>
       </v-col>

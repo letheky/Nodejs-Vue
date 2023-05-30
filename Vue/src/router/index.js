@@ -64,6 +64,18 @@ const routes = [
         children: [],
       },
       {
+        path: '/my-topic/overvie',
+        name: 'my-topic',
+        meta: { title: 'My Topic - QuangT App' },
+        component: () => import('@/components/MyResearch/Overview.vue'),
+      },
+      {
+        path: '/login',
+        name: 'my-research',
+        meta: { title: 'My Research - QuangT App' },
+        component: () => import('@/components/MyTopic/Overview.vue'),
+      },
+      {
         path: '/account-management',
         name: 'account-management',
         meta: { title: 'Account Management' },
@@ -210,6 +222,7 @@ const routes = [
     meta: { title: 'Login - QuangT App' },
     component: () => import('@/view/Login.vue'),
   },
+
   // {
   //   path: '/change-password',
   //   name: 'change-password',

@@ -1,7 +1,7 @@
 <template>
   <div class="absent" :style="{ maxHeight: '100vh' }">
     <div class="d-flex justify-space-between align-center mb-2">
-      <h2>Nghiên cứu khoa học giáo viên</h2>
+      <h2>Nghiên cứu khoa học giảng viên</h2>
       <div v-if="roleid === 1">
         <v-btn
           @click="
@@ -22,6 +22,10 @@
         <v-progress-linear indeterminate color="primary"></v-progress-linear>
       </div>
     </template>
+    <div class="d-flex pb-3">
+      <h3>Total: {{ filtered.length }} nghiên cứu</h3>
+      <v-btn class="primary ml-auto" @click="downloadExcel"> Xuất Excel </v-btn>
+    </div>
     <template>
       <v-data-table
         :headers="headers"
@@ -29,6 +33,7 @@
         :items-per-page="1000000000000000"
         hide-default-footer
         class="elevation-0 absent-table"
+        ref="researchTable"
         :id="'absent-table'"
         fixed-header
         height="69vh"
@@ -119,6 +124,7 @@ import Autocomplete from '@/components/Utils/Autocomplete.vue'
 import PopupConfirm from '@/components/Utils/PopupConfirm.vue'
 // import PopupReference from '@/components/Libraries/PopupReference.vue'
 
+import XLSX from 'xlsx'
 import dayjs from 'dayjs'
 import { research } from '@/api/research'
 import { instructor } from '@/api/instructor'
@@ -284,6 +290,13 @@ export default {
   watch: {},
 
   methods: {
+    downloadExcel() {
+      if (this.listTopic.length > 0) {
+        var table_elt = document.getElementById('absent-table')
+        var workbook = XLSX.utils.table_to_book(table_elt)
+        XLSX.writeFile(workbook, 'Nghiên cứu khoa học giảng viên' + '.xlsm')
+      }
+    },
     editReference(id) {
       this.$router.push({
         name: 'research-add-new',

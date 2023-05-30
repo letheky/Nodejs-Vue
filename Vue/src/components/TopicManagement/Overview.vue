@@ -22,6 +22,10 @@
         <v-progress-linear indeterminate color="primary"></v-progress-linear>
       </div>
     </template>
+    <div class="d-flex pb-3">
+      <h3>Total: {{ filtered.length }} nghiên cứu</h3>
+      <v-btn class="primary ml-auto" @click="downloadExcel"> Xuất Excel </v-btn>
+    </div>
     <template>
       <v-data-table
         :headers="headers"
@@ -122,6 +126,7 @@ import Autocomplete from '@/components/Utils/Autocomplete.vue'
 import PopupConfirm from '@/components/Utils/PopupConfirm.vue'
 // import PopupReference from '@/components/Libraries/PopupReference.vue'
 
+import XLSX from 'xlsx'
 import dayjs from 'dayjs'
 import { topic } from '@/api/topic'
 import { student } from '@/api/student'
@@ -277,6 +282,13 @@ export default {
   watch: {},
 
   methods: {
+    downloadExcel() {
+      if (this.listTopic.length > 0) {
+        var table_elt = document.getElementById('absent-table')
+        var workbook = XLSX.utils.table_to_book(table_elt)
+        XLSX.writeFile(workbook, 'Nghiên cứu khoa học sinh viên' + '.xlsm')
+      }
+    },
     editReference(id) {
       this.$router.push({
         name: 'topic-add-new',

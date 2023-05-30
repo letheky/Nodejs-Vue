@@ -310,8 +310,6 @@ export default {
       authors: '',
       circularTypeList: [
         'Tập san TBU',
-        'Báo TBU',
-        'Kỷ yếu TBU',
         'Bài báo khoa học trong nước',
         'Bài báo khoa học ngoài nước',
       ],
